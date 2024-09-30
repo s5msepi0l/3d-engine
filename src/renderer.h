@@ -83,7 +83,7 @@ public:
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
         SDL_RenderClear(renderer);
         SDL_RenderPresent(renderer);
     
@@ -125,7 +125,7 @@ public:
 
 /*
     // use this only when you need to render a sprite
-    void pipeline_input(buffer_2D<sprite> &obj, f_vec_2D offset) {
+    void pipeline_input(buffer_2D<sprite> &obj, f_vec2 offset) {
         for (i32 i = 0; i<obj.width; i++) {
             for (i32 j = 0; j<obj.height; j++) {
 
@@ -150,7 +150,8 @@ public:
         
     }*/
 
-    void rect_insert(sprite obj, f_vec_2D position, f_vec_2D size = {1, 1}) {
+    void rect_insert(sprite obj, f_vec2 position, f_vec2 size = {1, 1}) {
+        std::cout << "\n\n\n\n\n oh no\n";
         for (i32 i = 0; i<obj.width; i++) {
             for (i32 j = 0; j<obj.height; j++) {
 
@@ -174,8 +175,49 @@ public:
         }
     }
 
+    void rect_insert(rgb clr, f_vec2 position, f_vec2 size = {1, 1}) {
 
-    void rect_insert(sprite obj, f_vec_2D offset) {
+        SDL_Rect rect;  
+        rect.x = (position.x);
+        rect.y = (position.y);
+        rect.w = size.x;
+        rect.h = size.y;
+
+        SDL_SetRenderDrawColor(
+            renderer,
+            clr.r,
+            clr.g,
+            clr.b,
+            clr.a
+        );
+
+        SDL_RenderFillRect(renderer, &rect);
+    /*
+        for (i32 i = 0; i<size.x; i++) {
+            for (i32 j = 0; j<size.y; j++) {
+
+                SDL_Rect rect;  
+                rect.x = (i * size.x) + (position.x);
+                rect.y = (j * size.y) + (position.y);
+                rect.w = size.x;
+                rect.h = size.y;
+
+                SDL_SetRenderDrawColor(
+                    renderer,
+                    clr.r,
+                    clr.g,
+                    clr.b,
+                    clr.a
+                );
+
+                SDL_RenderFillRect(renderer, &rect);
+            }
+        }
+        */
+    }
+
+
+    void rect_insert(sprite obj, f_vec2 offset) {
         for (i32 i = 0; i<obj.width; i++) {
             for (i32 j = 0; j<obj.height; j++) {
 
@@ -208,7 +250,7 @@ public:
     // it just fills the internal sdl render pipeline with a solid black color
     inline void clear_pipeline() {
         SDL_RenderPresent(renderer);
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);	
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);	
         SDL_RenderClear(renderer);
     }
 
