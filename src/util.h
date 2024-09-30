@@ -9,6 +9,7 @@
 #include <list>
 #include <unordered_map>
 #include <SDL2/SDL.h>
+#include <unistd.h>
 
 namespace std {
     //generally used for holding ascii values or 
@@ -29,16 +30,16 @@ namespace std {
 #define i64 int64_t
 
 //general coordinate struct
-typedef struct f_vec_2D {
+typedef struct f_vec2 {
     f32 x;
     f32 y;
 
-    f_vec_2D(): x(0), y(0) {}
-    f_vec_2D(f32 X, f32 Y): x(X), y(Y) {}
+    f_vec2(): x(0), y(0) {}
+    f_vec2(f32 X, f32 Y): x(X), y(Y) {}
 
 
     // √(x_2-x_1)²+(y_2-y_1)²
-    inline f32 distance_to(f_vec_2D other) const {
+    inline f32 distance_to(f_vec2 other) const {
         return static_cast<f32>(sqrt(pow(other.x, 2) + pow(other.y, 2)));
     }
 
@@ -46,29 +47,30 @@ typedef struct f_vec_2D {
         return static_cast<f32>(sqrt(pow(x_pos, 2) + pow(y_pos, 2)));
     }
 
-    void operator+=(f_vec_2D other) {
+    void operator+=(f_vec2 other) {
         x += other.x;
         y += other.y;
     }
 
-    void operator=(f_vec_2D other) {
+    void operator=(f_vec2 other) {
         x = other.x;
         y = other.y;
     }
 
-    inline f_vec_2D operator*(f32 op) {
-        return f_vec_2D(this->x * op, this->y * op);
+    inline f_vec2 operator*(f32 op) {
+        return f_vec2(this->x * op, this->y * op);
     }
 
-}f_vec_2D;
+}f_vec2;
 
 class keyboard_input {
 public:
     inline u8* poll() {
+        SDL_PumpEvents();
         // Get the state of all keys
         u8* key_states = (u8*)SDL_GetKeyboardState(NULL);
 /*
-        f_vec_2D ret;
+        f_vec2 ret;
 
         // Check if the keys are pressed using SDL_GetKeyState
         if (currentKeyStates[SDL_SCANCODE_UP]) {
@@ -94,12 +96,12 @@ public:
     }
 
     //fetch wasd directional key like if 
-    f_vec_2D poll_axis(std::string axis) {
-        f_vec_2D ret;
+    f_vec2 poll_axis() {
+        f_vec2 ret;
         u8 *keys = poll();
 
-        if (keys[SDL_SCANCODE_W]) ret.y -= 1;
-        if (keys[SDL_SCANCODE_S]) ret.y += 1;
+        if (keys[SDL_SCANCODE_W]) ret.y += 1;
+        if (keys[SDL_SCANCODE_S]) ret.y -= 1;
         if (keys[SDL_SCANCODE_A]) ret.x -= 1;
         if (keys[SDL_SCANCODE_D]) ret.x += 1;
 
@@ -140,6 +142,40 @@ public:
         return &data[index * width];
     }
 
+};
+
+class frametime_manager {
+    private:
+        f32 frame_time;
+
+        u64 start_time;
+        u64 elapsed_time;
+
+    public:
+        inline frametime_manager(u8 Frame_time) {
+            frame_time = std::floor(1000.0 / Frame_time);
+        }
+
+        inline void set_frametime(u8 Frame_time) { this->frame_time = Frame_time; }
+
+        inline void set_start() {
+            start_time = SDL_GetTicks();
+        }
+
+
+        // call this function after you've finished frame creating, rendering, keyboard polling etc and are
+        // about to restart the loop
+    inline void set_end() {
+        elapsed_time = SDL_GetTicks() - start_time;  // Time taken to process the frame
+
+        if (elapsed_time > 0) {
+            f32 current_fps = 1000.0 / elapsed_time;  
+        }
+
+        if (elapsed_time < frame_time) {
+            SDL_Delay(frame_time - elapsed_time);
+        } 
+    }
 };
 
 template <typename key_type, typename value_type>
